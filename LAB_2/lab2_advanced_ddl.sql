@@ -1,10 +1,10 @@
+-- lab2_advanced_ddl.sql
 -- PART 1:
 --Task 1.1:
 CREATE DATABASE university_main
     OWNER CURRENT_USER
     TEMPLATE template0
     ENCODING 'UTF8';
-
 
 CREATE DATABASE university_archive
     CONNECTION LIMIT 50
@@ -19,10 +19,10 @@ CREATE TABLESPACE student_data
     LOCATION '/data/students';
 
 CREATE TABLESPACE course_data
-    OWNER CURRENT_USER;
+    OWNER CURRENT_USER
     LOCATION '/data/courses';
 
-CREATE DATABESE university_distributed
+CREATE DATABASE university_distributed
     TABLESPACE student_data
     ENCODING 'LATIN9';
 
@@ -38,7 +38,7 @@ CREATE TABLE students (
     enrollment_date date,
     gpa decimal(3, 2),
     is_active boolean,
-    graduation_date smallint
+    graduation_year smallint
 );
 
 CREATE TABLE professors (
@@ -72,9 +72,9 @@ CREATE TABLE class_schedule (
     professor_id int,
     classroom varchar(20),
     class_date date,
-    start_time timeб
+    start_time time,
     end_time time,
-    duration int
+    duration interval
 );
 
 CREATE TABLE student_records (
@@ -88,14 +88,15 @@ CREATE TABLE student_records (
     submission_timestamp timestamptz,
     last_updated timestamptz
 );
+
 --PART 3:
 --Task 3.1:
 ALTER TABLE students
     ADD COLUMN middle_name varchar(30),
     ADD COLUMN student_status varchar(20),
     ALTER COLUMN phone TYPE varchar(20),
-    ALTER COLUMN student_status SET DEFAULT 'active',
-    ALTER COLUMN gpa SET DEFAULT 0.00,
+    ALTER COLUMN student_status SET DEFAULT 'ACTIVE',
+    ALTER COLUMN gpa SET DEFAULT 0.00;
 
 ALTER TABLE professors
     ADD COLUMN department_code char(5),
@@ -171,7 +172,6 @@ ALTER TABLE students
 ALTER TABLE courses
     ADD COLUMN department_id int;
 
-
 CREATE TABLE grade_scale (
     grade_id SERIAL PRIMARY KEY,
     letter_grade char(2),
@@ -184,12 +184,11 @@ CREATE TABLE semester_calendar (
     semester_id SERIAL PRIMARY KEY,
     semester_name varchar(20),
     academic_year int,
-    staert_date date,
+    start_date date,
     end_date date,
     registration_deadline timestamptz,
     is_current boolean
 );
-
 
 --PART 5:
 --Task 5.1:
@@ -202,7 +201,7 @@ CREATE TABLE grade_scale (
     letter_grade char(2),
     min_percentage decimal(4, 1),
     max_percentage decimal(4, 1),
-    gpa_points decimal(3, 2)
+    gpa_points decimal(3, 2),
     description text
 );
 
@@ -215,12 +214,12 @@ CREATE TABLE semester_calendar (
     start_date date,
     end_date date,
     registration_deadline timestamptz,
-    is_current boolean,
+    is_current boolean
 );
 
 --Task 5.2:
-DROP DATABASE IF EXIST university_test;
-DROP DATABESE IF EXIST university_distributed;
+DROP DATABASE IF EXISTS university_test;
+DROP DATABASE IF EXISTS university_distributed;
 
 CREATE DATABASE university_backup
     TEMPLATE university_main;
