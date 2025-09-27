@@ -223,3 +223,66 @@ DROP DATABASE IF EXISTS university_distributed;
 
 CREATE DATABASE university_backup
     TEMPLATE university_main;
+
+
+
+--PART A:
+
+CREATE DATABASE library_system
+    CONNECTION LIMIT = 75;
+
+CREATE TABLESPACE digital_content
+    LOCATION '/storage/ebooks';
+
+
+--PART B:
+
+CREATE TABLE book_catalog (
+    catalog_id SERIAL PRIMARY KEY,
+    isbn char(13),
+    book_title varchar(150),
+    author_name varchar(100),
+    publisher varchar(80),
+    publication_year smallint,
+    total_pages int,
+    book_format char(10),
+    purchase_price decimal(5, 2),
+    is_available boolean
+);
+
+CREATE TABLE digital_downloads (
+    download_id SERIAL PRIMARY KEY,
+    user_id int,
+    catalog_id int,
+    download_timestamp timestamp,
+    file_format varchar(10),
+    file_size_mb real,
+    download_completed boolean,
+    expiry_date date,
+    access_count smallint
+);
+
+
+--PART C:
+
+ALTER TABLE book_catalog
+    ADD COLUMN genre varchar(50),
+    ADD COLUMN library_section char(3),
+    ALTER COLUMN genre SET DEFAULT 'UNKNOWN';
+
+ALTER TABLE digital_downloads
+    ADD COLUMN device_type varchar(30),
+    ALTER COLUMN file_size_mb TYPE int,
+    ADD COLUMN last_accessed timestamptz;
+
+
+--PART D:
+
+CREATE TABLE reading_sessions (
+    session_id SERIAL PRIMARY KEY,
+    user_reference int,
+    book_reference int, session_start timestamptz,
+    reading_duration interval,
+    pages_read smallint,
+    session_active boolean
+);
