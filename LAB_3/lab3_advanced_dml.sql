@@ -219,3 +219,98 @@ WHERE p.budget > 50000
       GROUP BY d.dept_id
       HAVING COUNT(*) > 3
   );
+
+
+
+--CLASS
+
+
+CREATE TABLE menu_items (
+  item_id SERIAL PRIMARY KEY,
+  item_name varchar(100),
+  category varchar(30);
+  base_price int,
+  is_available boolean,
+  prep_time_minutes timestamp
+);
+
+CREATE TABLE customer_orders(
+  order_id SERIAL PRIMARY KEY,
+  customer_name varchar(50),
+  order_date date,
+  total_amount int,
+  payment_status boolean,
+  table_number int
+);
+
+CREATE TABLE order_details (
+  detail_id SERIAL PRIMARY KEY,
+  order_id int,
+  item_id int,
+  quantity int,
+  special_instructions text
+);
+
+--PART A:
+
+INSERT INTO menu_items (DEFAULT, item_name, category, base_price, is_available, prep_time_minutes)
+VALUES ('Chef Speacial Burger', 'Main Course', 12.00 * 1.25, 'true', 20);
+
+INSERT INTO customer_orders (customer_name, order_date, total_amount, payment_status, table_number)
+VALUES
+      ('John Smith', '2025-10-1', 45.50, 'Paid', 5),
+      ('Mary Johnson', '2025-10-1', 32.00, 'Pending', 8),
+      ('Bob Wilson', '2025-10-1', 28.75, 'Paid', 3);
+
+INSERT INTO customer_orders (customer_name, order_date, payment_status, table_number)
+VALUES ('Walk-in CUstomer', CURRENT_DATE, DEFAULT, NULL);
+
+
+--PART B:
+
+UPDATE menu_items
+SET base_price = (base_price * 1.8)::int
+WHERE category = 'Appetizers';
+
+UPDATE menu_items SET category =
+    CASE
+    WHEN base_price > 20 THEN 'Premium'
+    WHEN base_price BETWEEN 10 AND 20 THEN 'Standart'
+    ELSE 'Budget'
+    END;
+
+
+UPDATE menu_items 
+SET total_amount = total_amount * 0.9
+WHERE payment_status = 'Pemding' AND payment_status = 'Discounted';
+
+UPDATE menu_items SET is_available = false
+FROM (
+    SELECT item_id FROM order_details WHERE quantity > 10
+);
+
+--Part C
+
+
+DELETE * FROM menu_items WHERE is_available = false AND base_price < 5.00;
+DELETE * FROM customer_orders WHERE order_date < '2024-01-01' AND payment_status 
+= 'Cancelled';
+
+DELETE FROM order_details d 
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM order_details e
+  WHERE e.order_id = d.order_id
+);
+
+--PART D
+
+
+UPDATE menu_items
+SET prep_time_minutes = NULL
+WHERE category IS NULL;
+RETURNING *;
+
+INSERT INTO customer_orders (total_amount)
+values (NULL)
+RETURNING order_id, customer_name;
