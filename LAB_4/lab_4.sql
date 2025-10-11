@@ -301,3 +301,159 @@ SELECT
   ROUND(LEAST(AVG(e1.salary),  MAX(e1.salary)), 2)  AS demo_least
 FROM employees e1
 GROUP BY e1.department;
+
+
+--CLASS WORK
+
+CREATE TABLE flights (
+    flight_id SERIAL PRIMARY KEY,
+    flight_number varchar(10),
+    origin varchar(64),
+    destination varchar(64),
+    departure_time timestamptz,
+    arrival_time timestamptz,
+    aircraft_type varchar(50),
+    status varchar(20),
+    ticket_price numeric(10,2)
+);
+
+CREATE TABLE passengers (
+    passenger_id SERIAL PRIMARY KEY,
+    passenger_name varchar(100),
+    nationality varchar(50),
+    passport_number varchar(20),
+    frequent_flyer_status varchar(20)
+);
+
+CREATE TABLE bookings (
+    booking_id SERIAL PRIMARY KEY,
+    passenger_id int REFERENCES passengers(passenger_id),
+    flight_id int REFERENCES flights(flight_id),
+    booking_date date,
+    seat_number varchar(10),
+    baggage_weight numeric(5,2)
+);
+
+
+--PART A
+
+--Task A1:
+
+SELECT
+    LOWER(flight_numbers) AS low_fn,
+    origin || '->' || destination AS flight_dest,
+SELECT aircraft_type || ' Aircraft' AS aircr;
+FROM flights;
+
+--Task A2:
+
+SELECT * FROM flights WHERE destination LIKE 'New%' OR  LIKE 'Los%';
+
+--Task A3:
+
+ALTER TABLE passengers
+ADD passenger_category VARCHAR(20);
+
+UPDATE passengers SET passenger_category = 
+    CASE 
+        WHEN frequent_flyer_status IN ('Gold', 'Platinum') THEN 'Elite Member'
+        WHEN frequent_flyer_status = 'Silver' THEN 'Regular Member'
+        ELSE 'Standard'
+    END;
+
+
+--PART B
+
+--Task B1:
+
+SELECT
+    flight_id,
+    flight_number,
+    (arrival_time - departure_time) AS flight_duration
+FROM flights;
+
+--Task B2:
+
+SELECT
+    booking_id
+WHERE booking_date BETWEEN (CURRENT_DATE - 30) AND CURRENT_DATE;
+
+--Task B3:
+
+SELECT
+    flight_id,
+    departure_time AS dep_time_fm
+WHERE departure_time > '12'
+FROM flights;
+
+
+--PART C
+
+-- Task C1
+select sum(baggage_weight) as total_baggage_over_20
+from bookings
+where baggage_weight > 20;
+
+-- Task C2
+select passenger_id, 
+    passenger_name, 
+    nationality, 
+    frequent_flyer_status, 
+    baggage_weight
+from passengers
+join bookings using(passenger_id)
+where baggage_weight between 15 and 25
+and frequent_flyer_status is not null;
+
+-- Task C3
+select flight_id, flight_number,
+       round(ticket_price * 1.12, 2) as price_with_fee
+from flights;
+
+-- Task C4
+select *
+from flights
+where ticket_price < 300
+or status = 'Delayed';
+
+--PART D
+
+--Task D1:
+
+SELECT 
+    flight_id, COUNT(*) AS passenger_count
+FROM bookings
+GROUP BY flight_id;
+
+--Task D2:
+
+SELECT
+    nationality,
+    AVG(baggage_weight) AS acg_bw,
+JOIN bookings ON passengers.passenger_id = bookings.passenger_id
+GROUP BY nationality
+HAVING AVG(baggage_weight) > 18;
+
+--Task D3:
+
+SELECT 
+    aircraft_type, 
+    MIN(ticket_price) AS min_price, 
+    MAX(ticket_price) AS max_price
+FROM flights
+GROUP BY aircraft_type;
+
+
+--Task D4:
+
+SELECT 
+    destination, 
+    SUM(ticket_price) AS total_revenue
+FROM flights
+GROUP BY destination;
+
+
+
+
+
+
