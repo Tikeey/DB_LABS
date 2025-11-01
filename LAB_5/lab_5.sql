@@ -383,3 +383,91 @@ CREATE TABLE order_details(
   unit_price numeric(10,2) NOT NULL CHECK (unit_price >= 0),
   UNIQUE (order_id, product_id)
 );
+
+
+--CLASS_WORK
+
+--PART_A
+
+CREATE TABLE membership_plans (
+    plan_id SERIAL PRIMARY KEY,
+    plan_name text NOT NULL UNIQUE ,
+    monthly_fee numeric NOT NULL CHECK(monthly_fee BETWEEN 10 AND 500),
+    max_classes_per_month int CHECK(max_classes_per_month BETWEEN 0 AND 100),
+    includes_personal_trainer boolean NOT NULL DEFAULT false
+);
+
+INSERT INTO membership_plans (plan_name, monthly_fee)
+VALUES ('Basic', 30),
+       ('Premium', 60),
+       ('VIP', 100);
+
+INSERT INTO membership_plans(plan_name, monthly_fee)
+VALUES ('INVALID_PLAN', 5);
+
+INSERT INTO membership_plans(plan_name, monthly_fee)
+VALUES ('Basic', 40);
+
+--PART B
+
+CREATE TABLE gym_members (
+    member_id SERIAL PRIMARY KEY,
+    full_name text NOT NULL,
+    email text NOT NULL UNIQUE,
+    phone text NOT NULL,
+    date_of_birth date NOT NULL,
+    plan_id int REFERENCES membership_plans(member_id),
+    join_date date NOT NULL DEFAULT CURRENT_DATE,
+    emergency_contact text
+
+CHECK (date_of_birth <= CURRENT_DATE - interval '16 years'),
+CHECK (join_date <= CURRENT_DATE);
+
+INSERT INTO gym_members (full_name, email, phone, date_of_birth, plan_id, join_date, emergency_contact)
+VALUES ('Timur Kim', 'kim@gmail.com', '848484', '2007-04-04', 1, 'MOM:444845'),
+       ('Timur Kim', 'kim@gmail.com', '848484', '2007-04-04', 1, 'MOM:444845'),
+        ('Timur Kim', 'kim@gmail.com', '848484', '2007-04-04', 1, 'MOM:444845');
+
+INSERT INTO gym_members (full_name, email, phone, date_of_birth, plan_id, join_date)
+VALUES ('Too_young', 'ofrjifj@gmail.com', '000000', '2015-01-01', 1, '2017-05-21'),
+       ('Future join', 'fut@example.com', '4546546546', '1995-03-10', 2, '2033-04-04'),
+       ('INVALIS', 'flklrf@mail.com', '444545454', '1992-07-22', 999);
+
+
+--PART C
+
+CREATE TABLE trainers (
+    trainer_id SERIAL PRIMARY KEY,
+    first_name text NOT NULL,
+    last_name text NOT NULL,
+    email text NOT NULL UNIQUE,
+    specialization text NOT NULL CHECK(
+        specialization IN ('Yoga', 'Cardio', 'Strength', 'Pilatos', 'CrossFit')
+    ),
+    hourly_rate numeric NOT NULL CHECK(hourly_rate BETWEEN 20 AND 200),
+    certification_number text NOT NULL UNIQUE,
+    years_experience int CHECK(years_expirience BETWEEN 0 AND 50)
+);
+
+INSERT INTO trainers(first_name, last_name, email, specialization, certification_number)
+VALUES ('ffrlfl', 'frfr'), 'fr@mail.com', 'Yoga', 1),
+        ('ffrlfl', 'frfr'), 'fr@mail.com', 'Yoga', 1),
+        ('ffrlfl', 'frfr'), 'fr@mail.com', 'Yoga', 1);
+
+INSERT INTO  trainers(first_name, last_name, specialization)
+VALUES ('ffrlfl', 'frfr'),'DANCE');
+
+INSERT INTO trainers(first_name, last_name, email, specialization, certification_number)
+VALUES ('ffrlfl', 'frfr'), 'fr@mail.com', 'Yoga', 1);
+
+
+--PART D
+
+INSERT INTO fitness_classes (class_name, trainer_id, class_date, start_time, end_time, max_capacity)
+VALUES
+('tgtgt', 1, '2025-10-16', '09:00', '10:00', 20),
+('frfrfr', 2, '2025-10-16', '18:00', '19:00', 30);
+
+INSERT INTO fitness_classes (class_name, trainer_id, class_date, start_time, end_time, max_capacity)
+VALUES
+('vrfvf;', 1, '2025-10-17', '15:00', '14:00', 15);
