@@ -306,3 +306,66 @@ SELECT
 FROM employees e1
 JOIN employees e2 ON e1.dept_id = e2.dept_id AND e1.emp_id < e2.emp_id
 JOIN departments d ON e1.dept_id = d.dept_id;
+
+
+--CLASS_WORK
+
+--TASK 1
+
+SELECT
+    e.emp_name, d.dept_name, d.location, e.salary
+FROM employees e
+JOIN departments d
+ON e.dept_id = d.dept_id
+ORDER BY e.emp_name;
+
+
+--TASK 2
+
+SELECT
+    d.dept_name, COUNT(e.emp_id) AS employee_count, COALESCE(AVG(salary, 0)) AS avg_salary
+FROM employees e
+LEFT JOIN employees e
+ON d.dept_id = e.dept_id
+GROUP BY d.dept_name
+ORDER BY employee_count DESC;
+
+
+--TASK 3
+
+SELECT
+    'Employee' AS resource_type,
+    e.emp_name AS resource_name,
+    e.salary AS value
+FROM employees e
+LEFT JOIN departments d ON e.dept_id = d.dept_id
+WHERE e.dept_id IS NULL
+
+UNION
+
+SELECT
+    'Project' AS resource_type,
+    p.project_name AS resource_name,
+    p.budget AS value
+FROM projects p
+LEFT JOIN departments d ON p.dept_id = d.dept_id
+WHERE p.dept_id IS NULL;
+
+
+--TASK 4
+
+SELECT
+    d.dept_name, d.location, COUNT(p.project_id) AS project_count, COALESCE(SUM(p.budget), 0) AS total_budget
+FROM departments d
+LEFT JOIN projects p ON d.dept_id = p.dept_id
+GROUP BY d.dept_name, d.location
+ORDER BY total_budget DESC;
+
+
+--TASK 5
+
+SELECT
+    e.emp_name, d.dept_name, p.project_name, p.budget AS project_budget
+FROM employees e
+
+
