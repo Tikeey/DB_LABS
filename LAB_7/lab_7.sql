@@ -378,6 +378,96 @@ GRANT viewer_role TO alice;
 GRANT analyst_role TO bob;
 GRANT manager_role TO charlie;
 
+--Class Work
+--Part A
+--Ex 1
+CREATE OR REPLACE VIEW employee_financial_report AS
+SELECT
+        e.emp_name,
+        d.dept_name,
+        e.salary,
+        CASE
+            WHEN e.salary > 60000 THEN 'Senior Level'
+            WHEN e.salary > 50000 THEN 'Mid Level',
+            ELSE 'Entry Level'
+        END AS salary_level,
+        ROUND((e.salary * 12) * 1.15, 2) AS annual_cost,
+        CASE
+            WHEN (e.salary * 12) * 1.15 > 700000 THEN 'High Cost'
+            WHEN (e.salary * 12) * 1.15 > 600000 THEN 'Medium Cost'
+            ELSE 'Standart Cost'
+        END AS cost_category
+FROM employees e
+JOIN departments d ON e.dept_id = d.dept_id
+ORDER BY annual_cost DESC;
+
+--Ex 2
+CREATE OR REPLACE VIEW resource_allocation AS
+SELECT
+        d.dept_name,
+        d.location,
+        COUNT(e.emp_id) AS employee_count,
+        ROUND(AVG(e.salary), 2) AS avg_salary,
+        COALESCE(SUM(p.budget, 0)) AS total_project_budget,
+        ROUND(CASE
+                    WHEN COUNT(e.emp_id) = 0 THEN .
+                    ELSE (COUNT(DISTINCT p.project_id) * 100) / COUNT(e.emp_id)
+            END, 2
+        ) AS efficiency_score,
+        CASE
+            WHEN efficiency_score > 50 THEN 'Excellent',
+            WHEN efficiency_score > 25 THEN 'GOOD',
+            ELSE 'Needs Improvement' ||
+        END AS allocation_status
+
+FROM departments d
+LEFT JOIN employees e ON e.dept_id = d.dept_id
+LEFT JOIN projects p ON p.dept_id = d.dept_id
+GROUP BY d.dept_name, d.location;
+
+--Part B
+--Ex 3
+CREATE MATERIALIZED VIEW performance_dashboard AS
+SELECT
+        d.dept_id,
+        d.dept_name,
+        COUNT(e.emp_id) AS total_employees,
+        ROUND(AVG(e.salary), 2) AS avg_salary,
+        COUNT(p.project_id) AS num_of_projects,
+        COALESCE(SUM(p.budget, 0)) AS total_budget
+        ROUND(CASE
+                    WHEN COUNT(e.emp_id) = 0 THEN .
+                    ELSE (COUNT(DISTINCT p.project_id) * 100) / COUNT(e.emp_id)
+            END, 2
+        ) AS efficiency_score,
+        CASE
+            WHEN efficiency_score > 50 THEN 'Excellent',
+            WHEN efficiency_score > 25 THEN 'GOOD',
+            ELSE 'Needs Improvement' ||
+        END AS performance_rating
+FROM departments d
+LEFT JOIN employees e ON e.dept_id = d.dept_id
+LEFT JOIN projects p ON p.dept_id = d.dept_id
+GROUP BY d.dept_id, d.dept_name,
+         WITH DATA;
+
+--Part C
+--Ex 1
+CREATE ROLE finance_analyst;
+GRANT SELECT ON employee_financial_report, recource_allocation TO finance_analyst;
+GRANT SELECT(emp_name,salary) ON employees TO finance_analyst;
+
+CREATE ROLE operations_manager;
+GRANT SELECT ON employees, departments projects TO operatioms_manager;
+GRANT SELECT ON performance_dashboard TO operation_manager;
+GRANT UPDATE (budget) ON projects TO operation_manager;
+
+---EX 2
+CREATE ROLE team_leader;
+GRANT finance_analyst TO team_leader;
+GRANT operation_manager TO team_leader;
+GRANT INSERT On projects TO team_leader;
+GRANT UPDATE (salary) ON employees To team_leader;
 
 
 
