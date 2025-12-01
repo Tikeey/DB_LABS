@@ -168,3 +168,45 @@ FROM pg_indexes
 WHERE schemaname = 'public' AND indexname LIKE '%salary%';
 
 SELECT * FROM index_documentations;
+
+
+--Class work
+CREATE TABLE patients(
+    patient_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    date_of_birth DATE,
+    phone VARCHAR(20),
+    insurance_id VARCHAR(50)
+);
+
+CREATE TABLE appointments(
+    appointment_id IN PRIMARY KEY,
+    patient_id INT,
+    doctor_name VARCHAR(100),
+    appointment_date DATE,
+    appointment_time TIME,
+    status VARCHAR(20),
+    department VARCHAR(50),
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id);
+)
+
+--Task 1
+CREATE INDEX last_name_idx ON patients(last_name);
+--B-Tree Cause wee need to sort it by LIKE
+
+--Task2
+CREATE INDEX date_of_app_idx ON appointments(appointment_date);
+--B-Tree it faster for find intervals
+
+--Task 3
+CREATE INDEX app_status_idx ON appointments(status, appointment_date) WHERE status = 'Scheduled';
+--LESS, cause we need to find exactly wanted index
+
+--Task 4
+CREATE INDEX app_idx ON appointments(department, appoinment_date, status);
+SELECT * FROM appoinments
+         WHERE department = 'Cardiology'
+        AND appointment_date = '2025-11-20'
+        AND status = 'Scheduled';
+--YES cause it optimize filtering
