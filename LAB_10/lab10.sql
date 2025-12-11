@@ -417,3 +417,58 @@ a) Prevent inconsistencies and partial updates during concurrency.
 #10
 a) They are rolled back automatically.
 */
+
+
+--Class Work
+--Task 1
+BEGIN;
+UPDATE accounts SET balance = balance - 200.00
+    WHERE name = 'Alice';
+UPDATE accounts SET balance = balance + 200.00
+    WHERE name = 'Bob';
+COMMIT;
+
+/*
+ 1.1) Alice: 800, Bob: 700;
+ 1.2) Atomicity;
+ 1.3) Atomicity;
+ */
+
+--Task 2
+BEGIN;
+INSERT INTO products (shop, product, price)
+    VALUES('Joe' 's Shop', 'Sprite', 2.00);
+SAVEPOINT sp1;
+UPDATE products SET price = 5.00
+    WHERE product = 'Sprite';
+SAVEPOINT p2;
+DELETE  FROM products WHERE product = 'Sprite';
+ROLLBACK TO p1;
+COMMIT;
+
+/*
+ 2.1) Yes;
+ 2.2) 2.00;
+ 2.3) CAUSE ROLLBACK TO p1 canceled all changes;
+ */
+
+ --Task 3
+BEGIN TRANSACTION ISOLATION LEVEL COMMITED;
+      SELECT MAX(price) FROM products WHERE shop = 'Joe' 's Shop';
+--QUERY A
+--(T2 executes here)
+SELECT MAX(price) FROM products WHERE shop ='Joe' 's Shop';
+--QUERY B
+COMMIT;
+
+BEGIN;
+INSERT INTO products (shop, product, price)
+VALUES( 'Joe' 's Shop', 'Water', 10.00);
+COMMIT;
+
+/*
+3.1) 3.50
+3.2) 10.00
+3.3) 3.50
+3.4) non-repeatable read
+ */
